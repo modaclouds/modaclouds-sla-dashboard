@@ -9,6 +9,10 @@ from slaclient import wsag_model
 
 import wsag_helper
 
+VIOLATED = wsag_model.AgreementStatus.StatusEnum.VIOLATED
+NON_DETERMINED = wsag_model.AgreementStatus.StatusEnum.NON_DETERMINED
+FULFILLED = wsag_model.AgreementStatus.StatusEnum.FULFILLED
+
 #
 # This is not thread safe and there may be problems if SLA_MANAGER_URL is not
 # a fixed value
@@ -170,14 +174,22 @@ def agreement_details(request, agreement_id):
     agreement = _get_agreement(agreement_id)
     violations = _get_agreement_violations(agreement_id)
     status = _get_agreement_status(agreement_id)
-    annotator.annotate_agreement(agreement, status, violations)
+    ejob = _get_enforcementjob(agreement_id)
+    annotator.annotate_agreement(agreement, status, violations, ejob)
+
+    if not ejob.enabled:
+        status_str = wsag_model.AgreementStatus.StatusEnum.NON_DETERMINED
+    elif status.guaranteestatus != VIOLATED:
+        status_str = FULFILLED
+    else:
+        status_str = VIOLATED
 
     violations_by_date = wsag_helper.get_violations_bydate(violations)
     context = {
         'backurl': _get_backurl(request),
         'agreement_id': agreement_id,
         'agreement': agreement,
-        'status': status,
+        'status': status_str,
         'violations_by_date': violations_by_date
     }
     return render(request, 'slagui/agreement_detail.html', context)
@@ -205,6 +217,10 @@ def _get_agreements_client():
 
 def _get_violations_client():
     return factory.violations()
+
+
+def _get_enforcementjobs_client():
+    return factory.enforcements()
 
 
 def _get_rol(request):
@@ -278,7 +294,8 @@ def _get_agreements(agreement_id, provider_id=None, consumer_id=None,
     for agreement in agreements:
         id_ = agreement.agreement_id
         status = _get_agreement_status(id_)
-        annotator.annotate_agreement(agreement, status)
+        ejob = _get_enforcementjob(id_)
+        annotator.annotate_agreement(agreement, status=status, ejob=ejob)
 
     if filter_ is not None:
         print "FILTERING ", repr(filter_)
@@ -316,3 +333,13 @@ def _get_agreement_violations(agreement_id, term=None):
     violations_client = _get_violations_client()
     violations, response = violations_client.getbyagreement(agreement_id, term)
     return violations
+
+
+def _get_enforcementjob(agreement_id):
+    """
+
+    :rtype : wsag_model.EnforcementJob
+    """
+    ejobs_client = _get_enforcementjobs_client()
+    status, response = ejobs_client.getbyid(agreement_id)
+    return status

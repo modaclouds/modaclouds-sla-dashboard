@@ -1,6 +1,3 @@
-import re
-import datetime
-
 from slaclient import wsag_model
 from slaclient.wsag_model import AgreementStatus
 from slaclient.wsag_model import Violation
@@ -44,10 +41,10 @@ class AgreementAnnotator(object):
         pass
 
     @staticmethod
-    def _get_statusclass(status):
-        if status is None or status == "" or status == NON_DETERMINED:
+    def _get_statusclass(status, enabled):
+        if not enabled:
             return "non-determined"
-        return "success" if status == FULFILLED else "error"
+        return "success" if status in (FULFILLED, NON_DETERMINED) else "error"
 
     def _annotate_guaranteeterm(self, term, violations):
         #
@@ -69,7 +66,7 @@ class AgreementAnnotator(object):
         term.nviolations = len(term_violations)
 
     def _annotate_guaranteeterm_by_status(
-            self, agreement, termstatus, violations):
+            self, agreement, termstatus, violations, enabled):
         #
         # Annotate a guarantee term: it is different from the previous
         # one in that this takes the status into account.
@@ -79,10 +76,11 @@ class AgreementAnnotator(object):
 
         term = agreement.guaranteeterms[name]
         term.status = status
-        term.statusclass = AgreementAnnotator._get_statusclass(status)
+        term.statusclass = AgreementAnnotator._get_statusclass(status, enabled)
         self._annotate_guaranteeterm(term, violations)
 
-    def annotate_agreement(self, agreement, status=None, violations=()):
+    def annotate_agreement(
+            self, agreement, status=None, violations=(), ejob=None):
 
         """Annotate an agreement with certain values needed in the templates
 
@@ -90,15 +88,17 @@ class AgreementAnnotator(object):
         :param wsag_model.AgreementStatus status: status of the agreement.
         :param violations: list of agreement's violations
             (wsag_model.Violation[])
+        :param wsag_model.EnforcementJob ejob: EnformentJob of agreement
         """
         a = agreement
-
+        enabled = ejob.enabled if ejob is not None else False
         if status is not None:
             a.guaranteestatus = status.guaranteestatus
-            a.statusclass = self._get_statusclass(status.guaranteestatus)
+            a.statusclass = self._get_statusclass(
+                status.guaranteestatus, enabled)
             for termstatus in status.guaranteeterms:
                 self._annotate_guaranteeterm_by_status(
-                    agreement, termstatus, violations)
+                    agreement, termstatus, violations, enabled)
         else:
             a.guaranteestatus = NON_DETERMINED
             for termname, term in agreement.guaranteeterms.items():

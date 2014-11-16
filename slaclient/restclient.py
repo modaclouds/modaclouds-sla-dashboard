@@ -30,7 +30,7 @@ import wsag_model
 _PROVIDERS_PATH = "providers"
 _AGREEMENTS_PATH = "agreements"
 _VIOLATIONS_PATH = "violations"
-_ENFORCEMENTJOBS_PATH = "enforcementjobs"
+_ENFORCEMENTJOBS_PATH = "enforcements"
 _TEMPLATES_PATH = "templates"
 
 
@@ -416,28 +416,19 @@ class Enforcements(object):
         self.res = _Resource(resourceurl, converter)
 
     def getall(self):
-        """ Get all violations
-        :rtype : list[wsag_model.Violation]
+        """ Get all enforcemnt jobs
+        :rtype : list[wsag_model.EnforcementJob]
         """
         return self.res.getall()
 
-    def getbyid(self, violationid):
-        """Get a violation
+    def getbyid(self, agreement_id):
+        """Get an enforcement job
 
-        :rtype : wsag_model.Violation
+        :rtype : wsag_model.EnforcementJob
         """
-        return self.res.getbyid(violationid)
+        return self.res.getbyid(agreement_id)
 
-    def getbyagreement(self, agreement_id, term=None):
-        """Get the violations of an agreement.
 
-        :param str agreement_id:
-        :param str term: optional GuaranteeTerm name. If not specified,
-            violations from all terms will be returned
-        :rtype: list[wsag_model.Violation]
-        """
-        return self.res.get(
-            {"agreementId": agreement_id, "guaranteeTerm": term})
 def _buildpath_(*paths):
     return "/".join(paths)
 
