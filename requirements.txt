@@ -1,0 +1,17 @@
+# BSD https://github.com/django/django/blob/master/LICENSE
+Django==1.7.1
+
+# BSD https://github.com/django-extensions/django-extensions/blob/master/LICENSE
+django-extensions
+
+# APLv2 https://github.com/dmishe/django-south/blob/master/LICENSE
+south
+
+# BSD https://github.com/django-debug-toolbar/django-debug-toolbar/blob/master/LICENSE
+django-debug-toolbar
+
+# APLv2 https://github.com/kennethreitz/requests/blob/master/LICENSE
+requests
+
+# Simplified BSD http://bazaar.launchpad.net/~dateutil/dateutil/trunk/view/head:/LICENSE
+python-dateutil<2.0
