@@ -185,12 +185,18 @@ def agreement_details(request, agreement_id):
         status_str = VIOLATED
 
     violations_by_date = wsag_helper.get_violations_bydate(violations)
+    # should be obtained from rest client
+    agreement_resourceurl = "{}/agreements/{}".format(settings.SLA_MANAGER_URL, agreement_id)
+    template_id = agreement.context.template_id
+    template_resourceurl = "{}/templates/{}".format(settings.SLA_MANAGER_URL, template_id)
     context = {
         'backurl': _get_backurl(request),
         'agreement_id': agreement_id,
         'agreement': agreement,
         'status': status_str,
-        'violations_by_date': violations_by_date
+        'violations_by_date': violations_by_date,
+        'resource': agreement_resourceurl,
+        'template_resource': template_resourceurl,
     }
     return render(request, 'slagui/agreement_detail.html', context)
 
