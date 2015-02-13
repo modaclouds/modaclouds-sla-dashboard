@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django import forms
+from django.http import HttpResponse
 
 from slaclient import restclient
 from slaclient import wsag_model
@@ -185,18 +186,14 @@ def agreement_details(request, agreement_id):
         status_str = VIOLATED
 
     violations_by_date = wsag_helper.get_violations_bydate(violations)
-    # should be obtained from rest client
-    agreement_resourceurl = "{}/agreements/{}".format(settings.SLA_MANAGER_URL, agreement_id)
     template_id = agreement.context.template_id
-    template_resourceurl = "{}/templates/{}".format(settings.SLA_MANAGER_URL, template_id)
     context = {
         'backurl': _get_backurl(request),
         'agreement_id': agreement_id,
         'agreement': agreement,
         'status': status_str,
         'violations_by_date': violations_by_date,
-        'resource': agreement_resourceurl,
-        'template_resource': template_resourceurl,
+        'template_id': template_id,
     }
     return render(request, 'slagui/agreement_detail.html', context)
 
@@ -217,8 +214,22 @@ def agreement_term_violations(request, agreement_id, guarantee_name):
     return render(request, 'slagui/violations.html', context)
 
 
+def raw_agreement(request, agreement_id):
+    xmlcontent = _get_raw_agreement(agreement_id)
+    return HttpResponse(xmlcontent, content_type='application/xml')
+
+
+def raw_template(request, template_id):
+    xmlcontent = _get_raw_template(template_id)
+    return HttpResponse(xmlcontent, content_type='application/xml')
+
+
 def _get_agreements_client():
     return factory.agreements()
+
+
+def _get_templates_client():
+    return factory.templates()
 
 
 def _get_violations_client():
@@ -264,6 +275,18 @@ def _get_agreement(agreement_id):
     agreements_client = _get_agreements_client()
     agreement, response = agreements_client.getbyid(agreement_id)
     return agreement
+
+
+def _get_raw_agreement(agreement_id):
+    agreements_client = _get_agreements_client()
+    agreement, response = agreements_client.getbyid(agreement_id)
+    return response.text
+
+
+def _get_raw_template(template_id):
+    templates_client = _get_templates_client()
+    template, response = templates_client.getbyid(template_id)
+    return response.text
 
 
 def _get_filter_from_form(form):

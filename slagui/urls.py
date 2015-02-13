@@ -44,6 +44,16 @@ urlpatterns = patterns(
         views.agreement_details,
         name='agreement_details'
     ),
+    url(
+        r'^raw/agreements/(?P<agreement_id>[\w-]+)',
+        views.raw_agreement,
+        name='raw_agreement'
+    ),
+    url(
+        r'^raw/templates/(?P<template_id>[\w-]+)',
+        views.raw_template,
+        name='raw_template'
+    ),
 
     #url(r'^consumer/(?P<consumer_id>\w+)$', views.consumer_agreements, name='consumer_agreements'),
 

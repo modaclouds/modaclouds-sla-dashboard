@@ -5,9 +5,9 @@
     <dl class="dl-horizontal">
         {# Sanity default: if dd is empty, the values are permutated #}
         <dt>Agreement Id</dt>
-            <dd><a href="{{resource}}">{{agreement.agreement_id|default:"&nbsp;"}}</a></dd>
+            <dd><a href="{%url 'raw_agreement' agreement_id %}">{{agreement.agreement_id|default:"&nbsp;"}}</a></dd>
         <dt>Template Id</dt>
-            <dd><a href="{{template_resource}}">{{agreement.context.template_id|default:"&nbsp;"}}</a></dd>
+            <dd><a href="{%url 'raw_template' template_id %}">{{agreement.context.template_id|default:"&nbsp;"}}</a></dd>
         <dt>Provider</dt>
             <dd>{{agreement.context.provider|default:"&nbsp;"}}</dd>
         <dt>Consumer</dt>
