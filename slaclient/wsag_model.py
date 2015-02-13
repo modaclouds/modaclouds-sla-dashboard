@@ -298,3 +298,27 @@ class EnforcementJob(object):
             return False
         return (self.agreement_id == other.agreement_id and
                 self.enabled == other.enabled)
+
+
+class Penalty(object):
+    def __init__(self):
+        """Simple bean model for a penalty"""
+        self.uuid = ""
+        self.agreement_id = ""
+        self.datetime = datetime.now()
+        self.action = ""
+        self.expression = ""
+        self.unit = ""
+        self.validity = ""
+
+    def __repr__(self):
+        return (("<Penalty(uuid={}, agremeent_id={}, datetime={}, " +
+            "action={}, expresssion={}, unit={}, validity={})>").format(
+                self.uuid,
+                self.agreement_id,
+                self.datetime,
+                self.action,
+                self.expression,
+                self.unit,
+                self.validity)
+        )

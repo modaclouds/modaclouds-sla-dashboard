@@ -32,6 +32,7 @@ _AGREEMENTS_PATH = "agreements"
 _VIOLATIONS_PATH = "violations"
 _ENFORCEMENTJOBS_PATH = "enforcements"
 _TEMPLATES_PATH = "templates"
+_PENALTIES_PATH = "penalties"
 
 
 class Factory(object):
@@ -69,6 +70,11 @@ class Factory(object):
         """Returns a REST client for EnforcementJobs
         """
         return Enforcements(self.rooturl)
+
+    def penalties(self):
+        """Returns a REST client for Penalties
+        """
+        return Penalties(self.rooturl)
 
 
 class Client(object):
@@ -427,6 +433,42 @@ class Enforcements(object):
         :rtype : wsag_model.EnforcementJob
         """
         return self.res.getbyid(agreement_id)
+
+
+class Penalties(object):
+
+    def __init__(self, root_url, path=_PENALTIES_PATH):
+        """Business methods for Penalty resource
+        :param str root_url: url to the root of resources
+        :param str path: path to resource from root_url
+
+        The final url to the resource is root_url + "/" + path
+        """
+        resourceurl = _buildpath_(root_url, path)
+        converter = xmlconverter.PenaltyConverter()
+        self.res = _Resource(resourceurl, converter)
+
+    def getall(self):
+        """ Get all penalties
+        :rtype : list[wsag_model.Penalty]
+        """
+        return self.res.getall()
+
+    def getbyid(self, penaltyid):
+        """Get a penalty
+
+        :rtype : wsag_model.Penalty
+        """
+        return self.res.getbyid(penaltyid)
+
+    def getbyagreement(self, agreement_id):
+        """Get the penalties of an agreement.
+
+        :param str agreement_id:
+        :rtype: list[wsag_model.Penalty]
+        """
+        return self.res.get(
+            {"agreementId": agreement_id})
 
 
 def _buildpath_(*paths):

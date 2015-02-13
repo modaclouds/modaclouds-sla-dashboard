@@ -68,4 +68,23 @@
     </table>
 </div>
 
+<h3>Penalties</h3>
+<div id="penalties">
+    <table class="table">
+        <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Definition</th>
+        </tr>
+
+        {% for penalty in penalties %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{penalty.datetime|date}}</td>
+            <td>({{penalty.action}}, {{penalty.expression}}, {{penalty.unit}}, {{penalty.validity}})</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
 <a href="{{backurl}}" class="btn btn-default btn-back">Back</a>

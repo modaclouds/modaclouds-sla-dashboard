@@ -174,6 +174,7 @@ def agreement_details(request, agreement_id):
     annotator = wsag_helper.AgreementAnnotator()
     agreement = _get_agreement(agreement_id)
     violations = _get_agreement_violations(agreement_id)
+    penalties = _get_penalties(agreement_id)
     status = _get_agreement_status(agreement_id)
     ejob = _get_enforcementjob(agreement_id)
     annotator.annotate_agreement(agreement, status, violations, ejob)
@@ -194,6 +195,7 @@ def agreement_details(request, agreement_id):
         'status': status_str,
         'violations_by_date': violations_by_date,
         'template_id': template_id,
+        'penalties': penalties,
     }
     return render(request, 'slagui/agreement_detail.html', context)
 
@@ -234,6 +236,10 @@ def _get_templates_client():
 
 def _get_violations_client():
     return factory.violations()
+
+
+def _get_penalties_client():
+    return factory.penalties()
 
 
 def _get_enforcementjobs_client():
@@ -362,6 +368,16 @@ def _get_agreement_violations(agreement_id, term=None):
     violations_client = _get_violations_client()
     violations, response = violations_client.getbyagreement(agreement_id, term)
     return violations
+
+
+def _get_penalties(agreement_id):
+    """
+
+    :rtype : list[wsag_model.Penalty]
+    """
+    penalties_client = _get_penalties_client()
+    penalties, response = penalties_client.getbyagreement(agreement_id)
+    return penalties
 
 
 def _get_enforcementjob(agreement_id):

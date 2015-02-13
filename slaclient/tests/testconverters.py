@@ -64,6 +64,31 @@ class ConvertersTestCase(TestCase):
           </enforcement_job>
         """
 
+        self.penalty1 = """
+            <penalty>
+                <uuid>f112b1de-eb1b-44e4-aa7c-19fe81e72412</uuid>
+                <agreement_id>agreement-id</agreement_id>
+                <datetime>2015-02-11T00:44:32GMT</datetime>
+                <definition type="discount" expression="100"
+                    unit="euro" validity="P1M"/>
+            </penalty>
+        """
+
+        self.penalty2 = """
+            <penalty>
+                <uuid>f112b1de-eb1b-44e4-aa7c-19fe81e72412</uuid>
+                <agreement_id>agreement-id</agreement_id>
+                <datetime>2015-02-11T00:44:32GMT</datetime>
+                <definition type="migration"/>
+            </penalty>
+        """
+
+        self.penalties = """
+            <penalties>
+                <penalty xmlns:sla="http://sla.atos.eu" xmlns:wsag="http://www.ggf.org/namespaces/ws-agreement"><uuid>daa8c54c-5c52-4efe-8e4c-a5b7f31cf3fb</uuid><agreement_id>agreement01</agreement_id><datetime>2015-01-26T13:21:51CET</datetime><definition type="discount" expression="" unit="euro" validity=""/></penalty>
+            </penalties>
+        """
+
     def test_agreement(self):
         conv = xmlconverter.AgreementConverter()
 
@@ -114,6 +139,23 @@ class ConvertersTestCase(TestCase):
         current = xmlconverter.convertstring(conv, self.ejob2)
         expected = wsag_model.EnforcementJob("$id", False)
         self.assertEquals(current, expected)
+
+    def test_penalty(self):
+        conv = xmlconverter.PenaltyConverter()
+
+        current = xmlconverter.convertstring(conv, self.penalty1)
+        pprint(current)
+
+    def test_penalty_with_empty_fields(self):
+        conv = xmlconverter.PenaltyConverter()
+
+        current = xmlconverter.convertstring(conv, self.penalty2)
+        pprint(current)
+
+    def test_penalties(self):
+        conv = xmlconverter.ListConverter(xmlconverter.PenaltyConverter())
+        out = xmlconverter.convertstring(conv, self.penalties)
+        pprint(out)
 
     def test_list(self):
         conv = xmlconverter.ListConverter(xmlconverter.ProviderConverter())

@@ -31,6 +31,7 @@ from wsag_model import Template
 from wsag_model import Violation
 from wsag_model import Provider
 from wsag_model import EnforcementJob
+from wsag_model import Penalty
 
 
 def convertfile(converter, f):
@@ -320,6 +321,42 @@ class EnforcementConverter(Converter):
         result = EnforcementJob()
         result.agreement_id = xmlroot.find("agreement_id").text
         result.enabled = (xmlroot.find("enabled").text == "true")
+        return result
+
+
+class PenaltyConverter(Converter):
+    """Converter for an assessed penalty.
+
+    Input:
+    <penalty>
+        <uuid>ce0e148f-dfac-4492-bb26-ad2e9a6965ec</uuid>
+        <agreement_id>agreement04</contract_uuid>
+        <datetime>2015-02-10T09:04:03GMT</datetime>
+        <action>discount</action>
+        <expression>100</expression>
+        <unit>euro</unit>
+        <validity>P1M</validity>
+    </penalty>
+
+    Output:
+        wsag_model.Penalty
+    """
+    def __init__(self):
+        super(PenaltyConverter, self).__init__()
+
+    def convert(self, xmlroot):
+        result = Penalty()
+        result.uuid = xmlroot.find("uuid").text
+        result.agreement_id = xmlroot.find("agreement_id").text
+        dt_str = xmlroot.find("datetime").text
+        result.datetime = dateutil.parser.parse(dt_str)
+
+        definition = xmlroot.find("definition")
+        result.action = _get_attribute(definition, "type")
+        result.expression = _get_attribute(definition, "expression")
+        result.unit = _get_attribute(definition, "unit")
+        result.validity = _get_attribute(definition, "validity")
+
         return result
 
 
